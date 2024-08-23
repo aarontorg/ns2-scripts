@@ -1,0 +1,4 @@
+seed fed-v aws-ugw1
+shoot sap-landscape-fed em-cie mq-fed
+shoot sap-landscape-fed em-cie em-fed 
+shoot sap-landscape-fed ide-cie bas-fed
