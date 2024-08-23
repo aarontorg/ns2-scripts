@@ -1,10 +1,8 @@
 #! /bin/bash
 
-# Get workspaces then check pvcs, nodes and volumeattachments
-# Check for:
-# 1. volumeattachments on an existing node
-# 2. pvc and volumeattachment are using same pv
-# 3. annotation on the pvc matches the node (this may not always be true ... not sure when this would get updated)
+# Script will look at workspaces. If there is a terminating pod it will give you the command to run to delete the correct volumeattachment
+#
+# After deleting the attachment, check if the terminating pod terminates. If it does not, may have to force delete it.
 
 # Get a list of workspaces or use $1 for a specific one
 if [[ $1 != "" ]]; then
@@ -30,16 +28,18 @@ do
     export volAttachedNode=$(jq -r '. | select(.spec.source.persistentVolumeName | match($ENV.pv)) | .spec.nodeName' <<< $volumeattachments)
     volAttached=$(jq -r '. | select(.spec.source.persistentVolumeName | match($ENV.pv)) | .status.attached' <<< $volumeattachments)
     volAttachedName=$(jq -r '. | select(.spec.source.persistentVolumeName | match($ENV.pv)) | .metadata.name' <<< $volumeattachments)
-    #echo "  PVC: $pvc PV: $pv PvcNode: $pvcNode"
-    #echo "  VolAttachedName: $volAttachedName VolAttachNode: $volAttachedNode VolAttached: $volAttached"
     pod=$(kubectl get pods -n $ns | grep -v NAME | awk '{print "Pod:", $1, "Status:", $3}')
     podStatus=$(echo $pod | awk '{print $4}')
     echo "  $pod"
     if [[ "$podStatus" == "Terminating" ]]; then
       echo "    # kubectl delete volumeattachments.storage $volAttachedName"
     fi
+  done
+done
 
-    # Not really needed at this time ...
+
+## OLD
+# Not really needed at this time ...
     #if [[ "$volAttached" != "" ]]; then
     #  if [[ "$pvcNode" != "$volAttachedNode" ]]; then
     #    echo "     - PVC Node annotation does not match volumeattachment node"
@@ -55,6 +55,3 @@ do
     #else
     #  echo "     No Volume attachment found"
     #fi
-  done
-done
-
