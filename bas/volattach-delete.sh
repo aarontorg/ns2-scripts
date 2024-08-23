@@ -3,6 +3,8 @@
 # Script will look at workspaces. If there is a terminating pod it will give you the command to run to delete the correct volumeattachment
 #
 # After deleting the attachment, check if the terminating pod terminates. If it does not, may have to force delete it.
+#
+# To run the script, either give no arguments or the name of a workspaces (i.e-ws-za5g8). Giving no arguments will loop through all workspaces.
 
 # Get a list of workspaces or use $1 for a specific one
 if [[ $1 != "" ]]; then
